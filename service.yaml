@@ -6,8 +6,9 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 8080   # Puerto expuesto por tu aplicación
-      targetPort: 8080   # Puerto en el contenedor
-      nodePort: 30001    # Puerto accesible desde fuera del clúster
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30007
   selector:
     app: laboratorio-mafe  # Selector que coincide con las etiquetas de tu despliegue

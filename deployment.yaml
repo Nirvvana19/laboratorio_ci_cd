@@ -17,4 +17,5 @@ spec:
       containers:
       - name: laboratorio-mafe
         image: 338287058401.dkr.ecr.us-west-2.amazonaws.com/laboratorio_mafe:latest
-        command: ['sh', '-c', 'echo Container is Running ; sleep 3600']
+        ports:
+        - containerPort: 80
