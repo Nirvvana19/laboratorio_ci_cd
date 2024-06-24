@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mypod
+spec:
+  containers:
+    - name: laboratorio-mafe
+      image: 338287058401.dkr.ecr.us-west-2.amazonaws.com/laboratorio_mafe:latest
+  imagePullSecrets:
+    - name: ecr-secret

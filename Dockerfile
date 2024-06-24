@@ -1,11 +1,14 @@
-# Usar la imagen base de Nginx
-FROM nginx:alpine
+# Usa la imagen base de Nginx
+FROM nginx:latest
 
-# Copiar el contenido HTML en el directorio de Nginx
-COPY index.html /usr/share/nginx/html/index.html
+# Copia tu archivo index.html al directorio de Nginx
+COPY html /usr/share/nginx/html
 
 # Exponer el puerto 8081
 EXPOSE 8081
 
-# Comando para ejecutar Nginx en primer plano
+# Cambia el puerto de Nginx a 8081
+RUN sed -i 's/listen       80;/listen       8081;/' /etc/nginx/conf.d/default.conf
+
+# Inicia Nginx
 CMD ["nginx", "-g", "daemon off;"]
