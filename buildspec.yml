@@ -23,7 +23,9 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
-      - echo Writing image definition file...
-      - printf '[{"name":"my-container","imageUri":"%s"}]' $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG > imagedefinitions.json
+     
 artifacts:
-  files: imagedefinitions.json
+  files:
+    - appspec.yml
+    - scripts/**/
+
