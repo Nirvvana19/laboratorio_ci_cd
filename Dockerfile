@@ -1,5 +1,5 @@
 # Usa la imagen base de Nginx
-FROM nginx:latest
+FROM public.ecr.aws/k5s1p6t5/nginx-mafe:latest
 
 # Copia el archivo HTML directamente al directorio de Nginx
 COPY index.html /usr/share/nginx/html/index.html
