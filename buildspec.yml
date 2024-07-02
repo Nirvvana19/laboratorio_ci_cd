@@ -8,10 +8,23 @@ env:
     IMAGE_TAG: "latest"              # Puedes cambiar esto a la versión que prefieras
 
 phases:
+  install:
+    runtime-versions:
+      docker: 18
+    commands:
+      - apt-get update -y
+      - apt-get install -y kubectl
+      - curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+      - chmod +x minikube
+      - mv minikube /usr/local/bin/
   pre_build:
     commands:
       - echo Logging in to Amazon ECR...
       - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - echo Starting Minikube...
+      - minikube start
+      - echo Configuring kubectl to use Minikube context...
+      - kubectl config use-context minikube
   build:
     commands:
       - echo Build started on `date`
@@ -23,13 +36,13 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
-      - chmod +x scripts/start_server.sh
-      - ./scripts/start_server.sh
+      - echo Updating Kubernetes deployment...
+      - sed -i "s|image: .*$|image: $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG|g" k8s/deployment.yaml
+      - kubectl apply -f k8s/deployment.yaml --namespace=lab-mafe-ci-cd
+      - kubectl apply -f k8s/service.yaml --namespace=lab-mafe-ci-cd
 
 artifacts:
   files:
     - appspec.yml
-    - deployment.yaml
-    - service.yaml
     - scripts/**
-
+    - k8s/**

@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: laboratorio-mafe-service
+  namespace: lab-mafe-ci-cd
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30007
+  selector:
+    app: laboratorio-mafe  # Selector que coincide con las etiquetas de tu despliegue
