@@ -11,13 +11,15 @@ NAMESPACE="lab-mafe-ci-cd"
 kubectl config use-context minikube
 
 # Iniciar Minikube con el controlador none y cri-dockerd
-minikube start --container-runtime=docker
+minikube start 
 
 # Autenticarse en ECR
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
 # Extraer la última imagen de Docker desde ECR
 docker pull $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
+
+kubectl create namespace $NAMESPACE
 
 # Aplicar el despliegue a Minikube
 kubectl apply -f /home/ec2-user/laboratorio_ci_cd/deployment.yaml -n $NAMESPACE
