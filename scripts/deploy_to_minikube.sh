@@ -15,6 +15,10 @@ kubectl config use-context minikube
 # Asegúrate de que el namespace exista
 kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
 
+# Autenticación en ECR y actualización del deployment en Minikube
+aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+
+
 # Actualiza el deployment en Minikube con la nueva imagen
 kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=338287058401.dkr.ecr.us-west-2.amazonaws.com/laboratorio_mafe:latest
 
