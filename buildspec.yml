@@ -24,6 +24,11 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+  deploy:
+    commands:
+      - echo Deploying to Minikube...
+      - chmod +x start_server.sh
+      - ./start_server.sh
 artifacts:
   files:
     - appspec.yml
