@@ -1,7 +1,11 @@
 #!/bin/bash
 
 # Nombre del namespace
-NAMESPACE=lab-mafe-ci-cd
+REGION="us-west-2"
+ACCOUNT_ID="338287058401"
+REPOSITORY_NAME="laboratorio_mafe"
+IMAGE_TAG="latest"
+NAMESPACE="lab-mafe-ci-cd"
 
 # Configura el contexto de Kubernetes para Minikube
 kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify
