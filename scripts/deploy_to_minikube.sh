@@ -12,4 +12,4 @@ kubectl config use-context minikube
 kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
 
 # Actualiza el deployment en Minikube con la nueva imagen
-kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=338287058401.dkr.ecr.us-west-2.amazonaws.com/laboratorio_mafe:latest --record
+kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=338287058401.dkr.ecr.us-west-2.amazonaws.com/laboratorio_mafe:latest
