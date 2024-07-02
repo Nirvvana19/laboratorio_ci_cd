@@ -20,10 +20,10 @@ aws ecr get-login-password --region $REGION | docker login --username AWS --pass
 docker pull $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
 
 # Aplicar el despliegue a Minikube
-kubectl apply -f /k8s/deployment.yaml -n $NAMESPACE
+kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
 
 # Aplicar el servicio a Minikube
-kubectl apply -f /k8s/service.yaml -n $NAMESPACE
+kubectl apply -f k8s/service.yaml -n $NAMESPACE
 
 # Obtener la URL del servicio
 minikube service laboratorio-mafe-service -n $NAMESPACE
