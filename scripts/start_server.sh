@@ -22,10 +22,10 @@ docker pull $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TA
 kubectl create namespace $NAMESPACE
 
 # Aplicar el despliegue a Minikube
-kubectl apply -f /home/ec2-user/laboratorio_ci_cd/deployment.yaml -n $NAMESPACE
+kubectl apply -f /home/ubuntu/laboratorio_ci_cd/deployment.yaml -n $NAMESPACE
 
 # Aplicar el servicio a Minikube
-kubectl apply -f /home/ec2-user/laboratorio_ci_cd/service.yaml -n $NAMESPACE
+kubectl apply -f /home/ubuntu/laboratorio_ci_cd/service.yaml -n $NAMESPACE
 
 # Obtener la URL del servicio
 minikube service laboratorio-mafe-service -n $NAMESPACE
