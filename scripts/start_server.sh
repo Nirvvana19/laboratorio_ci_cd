@@ -11,7 +11,7 @@ NAMESPACE="lab-mafe-ci-cd"
 kubectl config use-context minikube
 
 # Iniciar Minikube con el controlador none y cri-dockerd
-minikube start --driver=none --container-runtime=docker
+minikube start --container-runtime=docker
 
 # Autenticarse en ECR
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
