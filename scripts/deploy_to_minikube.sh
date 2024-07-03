@@ -8,6 +8,8 @@ IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
 # Configura el contexto de Kubernetes para Minikube
+echo "Configuring kubectl to use Minikube..."
+export KUBECONFIG=/root/.kube/config
 kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify
 kubectl config set-context minikube --cluster=minikube --namespace=$NAMESPACE
 kubectl config use-context minikube

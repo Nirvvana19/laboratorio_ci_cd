@@ -24,6 +24,13 @@ phases:
     commands:
       - echo Pushing the Docker image...
       - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
+      - echo Setting up kubeconfig...
+      - mkdir -p /root/.minikube/profiles/minikube/
+      - cp certs/ca.crt /root/.minikube/
+      - cp certs/client.crt /root/.minikube/profiles/minikube/
+      - cp certs/client.key /root/.minikube/profiles/minikube/
+      - mkdir -p /root/.kube
+      - cp configs/kubeconfig /root/.kube/config
       - chmod +x scripts/deploy_to_minikube.sh
       - ./scripts/deploy_to_minikube.sh
 artifacts:
