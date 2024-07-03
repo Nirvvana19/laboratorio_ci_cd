@@ -11,9 +11,6 @@ NAMESPACE="lab-mafe-ci-cd"
 echo "Configuring kubectl to use Minikube..."
 export KUBECONFIG=/root/.kube/config
 
-kubectl config set-cluster minikube --server=https://https://192.168.49.2:8443 --certificate-authority=/root/.minikube/ca.crt
-kubectl config set-context minikube --cluster=minikube --namespace=$NAMESPACE --user=minikube
-kubectl config use-context minikube
 
 # Asegúrate de que el namespace exista
 echo "Verificando namespace..."
