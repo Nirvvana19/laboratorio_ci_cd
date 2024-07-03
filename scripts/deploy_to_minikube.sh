@@ -6,18 +6,29 @@ ACCOUNT_ID="338287058401"
 REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
+PUBLIC_IP="181.56.117.138"
 
 # Configurar kubectl para usar Minikube
 echo "Configuring kubectl to use Minikube..."
 export KUBECONFIG=/root/.kube/config
 
-kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --certificate-authority=/root/.minikube/ca.crt
+kubectl config set-cluster minikube --server=https://$PUBLIC_IP:8443 --certificate-authority=/root/.minikube/ca.crt
 kubectl config set-context minikube --cluster=minikube --namespace=$NAMESPACE --user=minikube
 kubectl config use-context minikube
 
 # Asegúrate de que el namespace exista
 echo "Verificando namespace..."
-kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
+if kubectl get namespace $NAMESPACE; then
+  echo "Namespace $NAMESPACE encontrado."
+else
+  echo "Namespace $NAMESPACE no encontrado. Creando namespace..."
+  if kubectl create namespace $NAMESPACE; then
+    echo "Namespace $NAMESPACE creado con éxito."
+  else
+    echo "Error al crear el namespace $NAMESPACE."
+    exit 1
+  fi
+fi
 
 # Autenticación en ECR y actualización del deployment en Minikube
 echo "Logging into Docker..."
