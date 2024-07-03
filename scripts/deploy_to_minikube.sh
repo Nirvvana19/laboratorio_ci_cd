@@ -9,7 +9,7 @@ NAMESPACE="lab-mafe-ci-cd"
 
 # Configurar kubectl para usar Minikube
 echo "Configuring kubectl to use Minikube..."
-export KUBECONFIG=/home/maria-fernanda/.kube/config
+export KUBECONFIG=./configs/kubeconfig
 
 
 # Asegúrate de que el namespace exista
