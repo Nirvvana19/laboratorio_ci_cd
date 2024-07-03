@@ -1,34 +1,56 @@
 #!/bin/bash
 
-# Nombre del namespace
+# Variables de configuración
 REGION="us-west-2"
 ACCOUNT_ID="338287058401"
 REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
-# Configura el contexto de Kubernetes para Minikube
+# Configurar kubectl para usar Minikube
 echo "Configuring kubectl to use Minikube..."
 export KUBECONFIG=/root/.kube/config
-kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --insecure-skip-tls-verify
-kubectl config set-context minikube --cluster=minikube --namespace=$NAMESPACE
+
+kubectl config set-cluster minikube --server=https://192.168.49.2:8443 --certificate-authority=/root/.minikube/ca.crt
+kubectl config set-context minikube --cluster=minikube --namespace=$NAMESPACE --user=minikube
 kubectl config use-context minikube
 
 # Asegúrate de que el namespace exista
-echo "Ver namespace"
+echo "Verificando namespace..."
 kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
 
 # Autenticación en ECR y actualización del deployment en Minikube
 echo "Logging into Docker..."
 aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
 
+if [ $? -ne 0 ]; then
+  echo "Failed to login to ECR"
+  exit 1
+fi
 
-# Actualiza el deployment en Minikube con la nueva imagen
-echo "Actualizar imagen"
-kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=338287058401.dkr.ecr.us-west-2.amazonaws.com/laboratorio_mafe:latest
+# Actualizar el deployment en Minikube con la nueva imagen
+echo "Actualizando imagen..."
+kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
 
-echo "Agregar"
+if [ $? -ne 0 ]; then
+  echo "Failed to set image"
+  exit 1
+fi
+
+# Aplicar los archivos de configuración de Kubernetes
+echo "Aplicando configuración de Kubernetes..."
 kubectl apply -f ./deployment.yaml -n $NAMESPACE
 
-echo "Agregar"
+if [ $? -ne 0 ]; then
+  echo "Failed to apply deployment configuration"
+  exit 1
+fi
+
 kubectl apply -f ./service.yaml -n $NAMESPACE
+
+if [ $? -ne 0 ]; then
+  echo "Failed to apply service configuration"
+  exit 1
+fi
+
+echo "Deployment actualizado y configuración aplicada con éxito."
