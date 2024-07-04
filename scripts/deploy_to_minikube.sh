@@ -1,53 +1,32 @@
 #!/bin/bash
 
 # Variables de configuración
-REGION="us-west-2"
-ACCOUNT_ID="338287058401"
-REPOSITORY_NAME="laboratorio_mafe"
+NAMESPACE="mi-namespace"
 IMAGE_TAG="latest"
-NAMESPACE="lab-mafe-ci-cd"
-NGROK_URL="https://d760-181-56-117-138.ngrok-free.app"  # Reemplaza con tu URL de Ngrok
 
+# Iniciar Ngrok para exponer Minikube
 ngrok http 192.168.49.2:30007 &
 
-# Asegúrate de que el namespace exista en Minikube
-echo "Verificando namespace en Minikube..."
-if kubectl get namespace $NAMESPACE &> /dev/null; then
-  echo "Namespace $NAMESPACE encontrado."
-else
-  echo "Namespace $NAMESPACE no encontrado. Creando namespace..."
-  if kubectl create namespace $NAMESPACE; then
-    echo "Namespace $NAMESPACE creado con éxito."
-  else
-    echo "Error al crear el namespace $NAMESPACE."
-    exit 1
-  fi
-fi
+# Espera unos segundos para que Ngrok esté listo y captura la URL
+sleep 10  # Ajusta el tiempo de espera según sea necesario
 
-# Autenticación en ECR y actualización del deployment en Minikube
-echo "Iniciando sesión en Docker..."
-aws ecr get-login-password --region $REGION | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com
+# Asegúrate de que el namespace exista
+kubectl get namespace $NAMESPACE || kubectl create namespace $NAMESPACE
 
-if [ $? -ne 0 ]; then
-  echo "Error al iniciar sesión en ECR"
-  exit 1
-fi
+# Autenticación en ECR (si es necesario)
+aws ecr get-login-password --region <tu-region> | docker login --username AWS --password-stdin <tu-account-id>.dkr.ecr.<tu-region>.amazonaws.com
 
-# Actualizar el deployment en Minikube con la nueva imagen y la URL de Ngrok
-echo "Actualizando imagen y URL en Minikube..."
-kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
+# Actualizar el deployment en Minikube
+kubectl set image deployment/mi-app-deployment -n $NAMESPACE mi-app-container=<tu-account-id>.dkr.ecr.<tu-region>.amazonaws.com/mi-app:$IMAGE_TAG
 
-# Actualizar el servicio para usar la URL de Ngrok
-sed -i "s|NGROK_URL_PLACEHOLDER|$NGROK_URL|g" ./service.yaml
-kubectl apply -f ./service.yaml -n $NAMESPACE
+# Aplicar archivos de configuración de Kubernetes
+kubectl apply -f ./path/to/deployment.yaml -n $NAMESPACE
+kubectl apply -f ./path/to/service.yaml -n $NAMESPACE
 
-# Aplicar los archivos de configuración de Kubernetes
-echo "Aplicando configuración de Kubernetes..."
-kubectl apply -f ./deployment.yaml -n $NAMESPACE
+# Otras acciones necesarias después del despliegue
+# ...
 
-if [ $? -ne 0 ]; then
-  echo "Error al aplicar la configuración de deployment"
-  exit 1
-fi
+# Finalmente, verifica la salida de Ngrok y captura la URL pública generada
+NGROK_URL=$(curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
 
-echo "Despliegue actualizado y configuración aplicada con éxito."
+echo "La aplicación está accesible en: $NGROK_URL"
