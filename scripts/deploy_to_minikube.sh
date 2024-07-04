@@ -11,7 +11,6 @@ NAMESPACE="lab-mafe-ci-cd"
 kubectl get ns
 
 
-
 # Asegúrate de que el namespace exista en Minikube
 echo "Verificando namespace en Minikube..."
 if kubectl get namespace $NAMESPACE &> /dev/null; then
