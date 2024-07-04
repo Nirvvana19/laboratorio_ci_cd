@@ -6,12 +6,7 @@ ACCOUNT_ID="338287058401"
 REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
-
-# Obtener la URL de Ngrok
-echo "Obteniendo URL de Ngrok..."
-NGROK_URL=$(ngrok http 80 | grep "Forwarding" | awk -F' ' '{print $2}')
-
-echo "Ngrok URL: $NGROK_URL"
+NGROK_URL="http://abcd1234.ngrok.io"  # Reemplaza con tu URL de Ngrok
 
 # Asegúrate de que el namespace exista en Minikube
 echo "Verificando namespace en Minikube..."
@@ -36,14 +31,13 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-# Actualizar el deployment en Minikube con la nueva imagen
-echo "Actualizando imagen en Minikube..."
+# Actualizar el deployment en Minikube con la nueva imagen y la URL de Ngrok
+echo "Actualizando imagen y URL en Minikube..."
 kubectl set image deployment/laboratorio-mafe -n $NAMESPACE laboratorio-mafe=$ACCOUNT_ID.dkr.ecr.$REGION.amazonaws.com/$REPOSITORY_NAME:$IMAGE_TAG
 
-if [ $? -ne 0 ]; then
-  echo "Error al actualizar la imagen en Minikube"
-  exit 1
-fi
+# Actualizar el servicio para usar la URL de Ngrok
+sed -i "s|NGROK_URL_PLACEHOLDER|$NGROK_URL|g" ./service.yaml
+kubectl apply -f ./service.yaml -n $NAMESPACE
 
 # Aplicar los archivos de configuración de Kubernetes
 echo "Aplicando configuración de Kubernetes..."
@@ -51,13 +45,6 @@ kubectl apply -f ./deployment.yaml -n $NAMESPACE
 
 if [ $? -ne 0 ]; then
   echo "Error al aplicar la configuración de deployment"
-  exit 1
-fi
-
-kubectl apply -f ./service.yaml -n $NAMESPACE
-
-if [ $? -ne 0 ]; then
-  echo "Error al aplicar la configuración de service"
   exit 1
 fi
 
