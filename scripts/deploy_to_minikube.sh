@@ -8,6 +8,8 @@ IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 NGROK_URL="https://d760-181-56-117-138.ngrok-free.app"  # Reemplaza con tu URL de Ngrok
 
+ngrok http 192.168.49.2:30007 &
+
 # Asegúrate de que el namespace exista en Minikube
 echo "Verificando namespace en Minikube..."
 if kubectl get namespace $NAMESPACE &> /dev/null; then
