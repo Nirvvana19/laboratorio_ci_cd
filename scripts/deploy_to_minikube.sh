@@ -6,7 +6,7 @@ ACCOUNT_ID="338287058401"
 REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
-NGROK_URL="http://abcd1234.ngrok.io"  # Reemplaza con tu URL de Ngrok
+NGROK_URL="https://d760-181-56-117-138.ngrok-free.app"  # Reemplaza con tu URL de Ngrok
 
 # Asegúrate de que el namespace exista en Minikube
 echo "Verificando namespace en Minikube..."
