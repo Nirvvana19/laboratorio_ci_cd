@@ -7,7 +7,7 @@ REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
-
+echo "Hola"
 export KUBECONFIG=/home/maria-fernanda/.kube/config
 
 kubectl get ns
