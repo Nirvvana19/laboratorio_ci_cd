@@ -31,3 +31,43 @@ spec:
             secretKeyRef:
               name: aws-credentials
               key: aws_secret_access_key
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: laboratorio-mafe-service
+  namespace: lab-mafe-ci-cd
+spec:
+  type: NodePort
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+    nodePort: 30007
+  selector:
+    app: laboratorio-mafe  # Selector que coincide con las etiquetas de tu despliegue
+
+---
+
+# ngrok Ingress Controller Configuration
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: laboratorio-mafe
+  namespace: lab-mafe-ci-cd
+spec:
+  ingressClassName: ngrok
+  rules:
+    - host: dominant-picked-bobcat.ngrok-free.app
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: laboratorio-mafe-service
+                port:
+                  number: 80

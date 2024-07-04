@@ -7,8 +7,6 @@ REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
-export KUBECONFIG="./configs/kubeconfig"
-
 # Asegúrate de que el namespace exista
 echo "Verificando namespace..."
 if kubectl get namespace $NAMESPACE; then
