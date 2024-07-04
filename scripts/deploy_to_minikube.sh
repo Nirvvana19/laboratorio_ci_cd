@@ -8,6 +8,8 @@ IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
 
+export KUBECONFIG=/home/maria-fernanda/.kube/config
+
 kubectl get ns
 
 
