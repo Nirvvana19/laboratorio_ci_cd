@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/maria-fernanda/Documentos/Repositorios/laboratorio_ci_cd
+    destination: 10ba-186-144-144-107.ngrok-free.app
 hooks:
   AfterInstall:
     - location: scripts/deploy_to_minikube.sh
