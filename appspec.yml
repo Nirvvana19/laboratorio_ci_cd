@@ -2,9 +2,9 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ec2-user/laboratorio_ci_cd/
+    destination: /home/maria-fernanda/Documentos/Repositorios/laboratorio_ci_cd
 hooks:
   AfterInstall:
     - location: scripts/deploy_to_minikube.sh
       timeout: 300
-      runas: ec2-user
+      runas: root
