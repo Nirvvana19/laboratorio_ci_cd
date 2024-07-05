@@ -50,37 +50,44 @@ jobs:
           kubernetes-version: 'v1.30.0'
           minikube-start-args: '--wait=all --driver=docker --apiserver-ips=127.0.0.1 --apiserver-name=10ba-186-144-144-107.ngrok-free.app --apiserver-port=80'
 
+      - name: Configure kubeconfig with Ngrok URL
+        run: |
+              mkdir -p ~/.kube
+              cp /root/.minikube/profiles/minikube/client.crt ~/.kube/client.crt
+              cp /root/.minikube/profiles/minikube/client.key ~/.kube/client.key
+              cp /root/.minikube/ca.crt ~/.kube/ca.crt
+          
+              echo "
+              apiVersion: v1
+              clusters:
+              - cluster:
+                  certificate-authority: ~/.kube/ca.crt
+                  server: https://10ba-186-144-144-107.ngrok-free.app
+                name: minikube
+              contexts:
+              - context:
+                  cluster: minikube
+                  user: minikube
+                name: minikube
+              current-context: minikube
+              kind: Config
+              preferences: {}
+              users:
+              - name: minikube
+                user:
+                  client-certificate: ~/.kube/client.crt
+                  client-key: ~/.kube/client.key
+              " > ~/.kube/config
+          
+              kubectl config use-context minikube
+
       - name: Set file permissions for Minikube certificates
         run: |
           sudo chmod 644 /root/.minikube/profiles/minikube/client.crt
           sudo chmod 644 /root/.minikube/profiles/minikube/client.key
           sudo chmod 644 /root/.minikube/ca.crt
 
-      - name: Configure kubeconfig with Ngrok URL
-        run: |
-          mkdir -p ~/.kube
-          echo "
-          apiVersion: v1
-          clusters:
-          - cluster:
-              certificate-authority: /root/.minikube/ca.crt
-              server: https://10ba-186-144-144-107.ngrok-free.app
-            name: minikube
-          contexts:
-          - context:
-              cluster: minikube
-              user: minikube
-            name: minikube
-          current-context: minikube
-          kind: Config
-          preferences: {}
-          users:
-          - name: minikube
-            user:
-              client-certificate: /root/.minikube/profiles/minikube/client.crt
-              client-key: /root/.minikube/profiles/minikube/client.key
-          " > ~/.kube/config
-          kubectl config use-context minikube
+
 
       - name: Deploy to Minikube via Ngrok
         run: |
