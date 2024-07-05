@@ -1,4 +1,4 @@
-name: Build and Deploy to Minikube
+name: Build and Push Docker Image
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build-and-push:
     runs-on: ubuntu-latest
 
     env:
@@ -15,7 +15,7 @@ jobs:
       ECR_REPOSITORY: "laboratorio_mafe"
       IMAGE_TAG: "latest"
       NAMESPACE: "lab-mafe-ci-cd"
-      NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+      NGROK_URL: "https://10ba-186-144-144-107.ngrok-free.app"
 
     steps:
       - name: Checkout repository
@@ -43,54 +43,54 @@ jobs:
       - name: Push Docker image to ECR
         run: docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
+      - name: Set execute permissions for deployment script
+        run: chmod 600 /ruta/a/tu/kubeconfig
 
-      - name: Start Minikube with Ngrok API Server
+      - name: Fetch latest Docker image from ECR
+        run: |
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      - name: Start Minikube
+        id: minikube
         uses: medyagh/setup-minikube@latest
         with:
           kubernetes-version: 'v1.30.0'
-          minikube-start-args: '--wait=all --driver=docker --apiserver-ips=127.0.0.1 --apiserver-name=10ba-186-144-144-107.ngrok-free.app --apiserver-port=80'
+          minikube-start-args: '--wait=all --driver=docker'
 
-      - name: Configure kubeconfig with Ngrok URL
+      - name: Copy Minikube certificates and configure kubeconfig
         run: |
-              mkdir -p ~/.kube
-              cp /root/.minikube/profiles/minikube/client.crt ~/.kube/client.crt
-              cp /root/.minikube/profiles/minikube/client.key ~/.kube/client.key
-              cp /root/.minikube/ca.crt ~/.kube/ca.crt
-          
-              echo "
-              apiVersion: v1
-              clusters:
-              - cluster:
-                  certificate-authority: ~/.kube/ca.crt
-                  server: https://10ba-186-144-144-107.ngrok-free.app
-                name: minikube
-              contexts:
-              - context:
-                  cluster: minikube
-                  user: minikube
-                name: minikube
-              current-context: minikube
-              kind: Config
-              preferences: {}
-              users:
-              - name: minikube
-                user:
-                  client-certificate: ~/.kube/client.crt
-                  client-key: ~/.kube/client.key
-              " > ~/.kube/config
-          
-              kubectl config use-context minikube
+          mkdir -p ~/.kube
+          sudo cp /root/.minikube/profiles/minikube/client.crt ~/.kube/client.crt
+          sudo cp /root/.minikube/profiles/minikube/client.key ~/.kube/client.key
+          sudo cp /root/.minikube/ca.crt ~/.kube/ca.crt
+          sudo chmod 644 ~/.kube/client.crt
+          sudo chmod 644 ~/.kube/client.key
+          sudo chmod 644 ~/.kube/ca.crt
+          echo "
+          apiVersion: v1
+          clusters:
+          - cluster:
+              certificate-authority: ~/.kube/ca.crt
+              server: ${NGROK_URL}
+            name: minikube
+          contexts:
+          - context:
+              cluster: minikube
+              user: minikube
+            name: minikube
+          current-context: minikube
+          kind: Config
+          preferences: {}
+          users:
+          - name: minikube
+            user:
+              client-certificate: ~/.kube/client.crt
+              client-key: ~/.kube/client.key
+          " > ~/.kube/config
 
-      - name: Set file permissions for Minikube certificates
+      - name: Use local cluster
         run: |
-          sudo chmod 644 /root/.minikube/profiles/minikube/client.crt
-          sudo chmod 644 /root/.minikube/profiles/minikube/client.key
-          sudo chmod 644 /root/.minikube/ca.crt
-
-
-
-      - name: Deploy to Minikube via Ngrok
-        run: |
+          kubectl config use-context minikube
           kubectl cluster-info
           kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
           kubectl apply -f kubernetes/service.yaml
@@ -100,6 +100,11 @@ jobs:
           echo "Ngrok tunnel URL:"
           cat ngrok.log | grep "Forwarding"
           echo "::set-output name=ngrok-url::$(cat ngrok.log | grep "Forwarding" | awk '{ print $NF }')"
-          
-    
 
+        env:
+          AWS_REGION: us-west-2
+          AWS_ACCOUNT_ID: 338287058401
+          ECR_REPOSITORY: laboratorio_mafe
+          IMAGE_TAG: latest
+          NAMESPACE: lab-mafe-ci-cd
+          NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
