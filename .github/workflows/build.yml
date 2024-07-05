@@ -49,7 +49,9 @@ jobs:
 
       - name: Verify Kubernetes namespace exists
         run: |
+          minikube status
           kubectl get namespace ${{ env.NAMESPACE }} || kubectl create namespace ${{ env.NAMESPACE }}
+
 
       - name: Deploy to Minikube with Ngrok URL
         run: |
