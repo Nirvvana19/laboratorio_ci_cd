@@ -43,9 +43,6 @@ jobs:
       - name: Push Docker image to ECR
         run: docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Set kubeconfig
-        run: |
-            export KUBECONFIG=kubeconfig
 
       - name: Start Minikube
         id: minikube
@@ -54,6 +51,7 @@ jobs:
 
       - name: Use local cluster
         run: |
+          export KUBECONFIG=kubeconfig
           kubectl cluster-info
           kubectl apply -f deployment.yaml -n $NAMESPACE
     
