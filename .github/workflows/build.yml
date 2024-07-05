@@ -49,6 +49,7 @@ jobs:
 
       - name: Deploy to Minikube via Ngrok
         run: |
+          ping -4 -w 30 10ba-186-144-144-107.ngrok-free.app
           kubectl cluster-info
           kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
           kubectl apply -f kubernetes/service.yaml
