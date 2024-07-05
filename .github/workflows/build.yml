@@ -50,19 +50,11 @@ jobs:
       - name: Start Minikube
         id: minikube
         uses: medyagh/setup-minikube@latest
-        with:
-          kubernetes-version: 'v1.30.0'
-          minikube-start-args: '--wait=all --driver=docker'
+
 
       - name: Use local cluster
         run: |
           kubectl cluster-info
           kubectl apply -f deployment.yaml -n $NAMESPACE
-          kubectl apply -f kubernetes/service.yaml
-          kubectl apply -f kubernetes/ingress.yaml
-          ngrok start --all --config=kubernetes/ngrok.yml --region=us --authtoken=$NGROK_AUTH_TOKEN --log=stdout > ngrok.log &
-          sleep 10
-          echo "Ngrok tunnel URL:"
-          cat ngrok.log | grep "Forwarding"
-          echo "::set-output name=ngrok-url::$(cat ngrok.log | grep "Forwarding" | awk '{ print $NF }')"
+    
 
