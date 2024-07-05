@@ -7,9 +7,21 @@ REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
-ping -4 -w 30 10ba-186-144-144-107.ngrok-free.app
 
-ping -w 30 10ba-186-144-144-107.ngrok-free.app
+
+#!/bin/bash
+set -e
+
+# Verifica la disponibilidad de la aplicación en Minikube a través de ngrok
+NGROK_URL="https://10ba-186-144-144-107.ngrok-free.app"
+
+# Realiza una solicitud HTTP para verificar la respuesta
+if curl --output /dev/null --silent --head --fail "$NGROK_URL"; then
+    echo "Validation successful: Application is accessible."
+else
+    echo "Validation failed: Application is not accessible."
+    exit 1
+fi
 
 
 echo "Casa"
