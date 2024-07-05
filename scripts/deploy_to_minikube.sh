@@ -7,7 +7,7 @@ REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
-
+export KUBECONFIG=/home/maria-fernanda/.kube/config
 
 #!/bin/bash
 set -e
