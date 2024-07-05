@@ -15,6 +15,7 @@ jobs:
       ECR_REPOSITORY: "laboratorio_mafe"
       IMAGE_TAG: "latest"
       NAMESPACE: "lab-mafe-ci-cd"
+      NGROK_URL: "https://10ba-186-144-144-107.ngrok-free.app"
 
     steps:
       - name: Checkout repository
@@ -41,3 +42,17 @@ jobs:
 
       - name: Set execute permissions for deployment script
         run: chmod +x scripts/deploy_to_minikube.sh
+
+      - name: Fetch latest Docker image from ECR
+        run: |
+          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+
+      - name: Verify Kubernetes namespace exists
+        run: |
+          kubectl get namespace ${{ env.NAMESPACE }} || kubectl create namespace ${{ env.NAMESPACE }}
+
+      - name: Deploy to Minikube with Ngrok URL
+        run: |
+          sed -i "s|NGROK_URL|${{ env.NGROK_URL }}|g" deployment.yaml
+          kubectl apply -f deployment.yaml
+          echo "Deployment actualizado y configuración aplicada con éxito."
