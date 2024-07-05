@@ -1,4 +1,4 @@
-name: Build and Push Docker Image
+name: Build and Deploy to Minikube
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-push:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     env:
@@ -15,7 +15,7 @@ jobs:
       ECR_REPOSITORY: "laboratorio_mafe"
       IMAGE_TAG: "latest"
       NAMESPACE: "lab-mafe-ci-cd"
-      NGROK_URL: "https://10ba-186-144-144-107.ngrok-free.app"
+      NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
 
     steps:
       - name: Checkout repository
@@ -26,7 +26,10 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: ${{ env.AWS_REGION }}
-        run: aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID && aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY && aws configure set region $AWS_REGION
+        run: |
+          aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+          aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+          aws configure set region $AWS_REGION
 
       - name: Login to Amazon ECR
         run: |
@@ -40,30 +43,26 @@ jobs:
       - name: Push Docker image to ECR
         run: docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Set execute permissions for deployment script
-        run: chmod +x scripts/deploy_to_minikube.sh
-
-      - name: Fetch latest Docker image from ECR
+      - name: Set kubeconfig
         run: |
-          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
+            export KUBECONFIG=kubeconfig
 
-      - name: Deploy to Minikube via Ngrok
+      - name: Start Minikube
+        id: minikube
+        uses: medyagh/setup-minikube@latest
+        with:
+          kubernetes-version: 'v1.30.0'
+          minikube-start-args: '--wait=all --driver=docker'
+
+      - name: Use local cluster
         run: |
-          kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
+          kubectl cluster-info
+          kubectl apply -f deployment.yaml -n $NAMESPACE
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/ingress.yaml
-          ngrok start --all --config=kubernetes/ngrok.yml --region=us --authtoken=${{ secrets.NGROK_AUTH_TOKEN }} --log=stdout > ngrok.log &
+          ngrok start --all --config=kubernetes/ngrok.yml --region=us --authtoken=$NGROK_AUTH_TOKEN --log=stdout > ngrok.log &
           sleep 10
           echo "Ngrok tunnel URL:"
           cat ngrok.log | grep "Forwarding"
           echo "::set-output name=ngrok-url::$(cat ngrok.log | grep "Forwarding" | awk '{ print $NF }')"
-
-      - name: Save Ngrok URL as environment variable
-        id: ngrok
-        run: echo "::set-env name=NGROK_URL::$(cat ngrok.log | grep 'Forwarding' | awk '{ print $NF }')"
-      
-      - name: Deploy to Minikube with Ngrok URL
-        run: |
-          sed -i "s|NGROK_URL|${{ env.NGROK_URL }}|g" kubernetes/ingress.yaml
-          kubectl apply -f kubernetes/ingress.yaml
 
