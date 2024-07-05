@@ -50,5 +50,6 @@ jobs:
       - name: Deploy to Minikube via Ngrok
         run: |
          minikube start
-         kubectl apply -f deployment.yaml
+         kubectl get namespaces
+         kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
 
