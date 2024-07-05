@@ -49,7 +49,7 @@ jobs:
 
       - name: Deploy to Minikube via Ngrok
         run: |
-          export KUBECONFIG=kubeconfig
+          kubectl cluster-info
           kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/ingress.yaml
