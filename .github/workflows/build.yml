@@ -49,6 +49,8 @@ jobs:
 
       - name: Verify Kubernetes namespace exists
         run: |
+          minikube start
+          kubectl get namespace lab-mafe-ci-cd
           minikube status
           kubectl get namespace ${{ env.NAMESPACE }} || kubectl create namespace ${{ env.NAMESPACE }}
 
