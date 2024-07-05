@@ -7,7 +7,10 @@ REPOSITORY_NAME="laboratorio_mafe"
 IMAGE_TAG="latest"
 NAMESPACE="lab-mafe-ci-cd"
 
-ping -4 10ba-186-144-144-107.ngrok-free.app
+ping -4 -w 30 10ba-186-144-144-107.ngrok-free.app
+
+ping -w 30 10ba-186-144-144-107.ngrok-free.app
+
 
 echo "Casa"
 export KUBECONFIG=/home/maria-fernanda/.kube/config
