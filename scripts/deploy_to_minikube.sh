@@ -51,11 +51,4 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
-kubectl apply -f ./service.yaml -n $NAMESPACE
-
-if [ $? -ne 0 ]; then
-  echo "Failed to apply service configuration"
-  exit 1
-fi
-
 echo "Deployment actualizado y configuración aplicada con éxito."

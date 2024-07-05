@@ -65,4 +65,4 @@ spec:
               service:
                 name: laboratorio-mafe-service
                 port:
-                  number: 80
+                  number: 8443
