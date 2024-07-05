@@ -43,26 +43,16 @@ jobs:
       - name: Push Docker image to ECR
         run: docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Set kubeconfig
-        run: |
-            export KUBECONFIG=kubeconfig
 
       - name: Start Minikube
         id: minikube
         uses: medyagh/setup-minikube@latest
-        with:
-          kubernetes-version: 'v1.30.0'
-          minikube-start-args: '--wait=all --driver=docker'
+
 
       - name: Use local cluster
         run: |
+          export KUBECONFIG=kubeconfig
           kubectl cluster-info
           kubectl apply -f deployment.yaml -n $NAMESPACE
-          kubectl apply -f kubernetes/service.yaml
-          kubectl apply -f kubernetes/ingress.yaml
-          ngrok start --all --config=kubernetes/ngrok.yml --region=us --authtoken=$NGROK_AUTH_TOKEN --log=stdout > ngrok.log &
-          sleep 10
-          echo "Ngrok tunnel URL:"
-          cat ngrok.log | grep "Forwarding"
-          echo "::set-output name=ngrok-url::$(cat ngrok.log | grep "Forwarding" | awk '{ print $NF }')"
+    
 
