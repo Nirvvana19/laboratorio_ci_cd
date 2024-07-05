@@ -49,23 +49,6 @@ jobs:
 
       - name: Deploy to Minikube via Ngrok
         run: |
-          ping -4 -w 30 10ba-186-144-144-107.ngrok-free.app
-          kubectl cluster-info
-          kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
-          kubectl apply -f kubernetes/service.yaml
-          kubectl apply -f kubernetes/ingress.yaml
-          ngrok start --all --config=kubernetes/ngrok.yml --region=us --authtoken=${{ secrets.NGROK_AUTH_TOKEN }} --log=stdout > ngrok.log &
-          sleep 10
-          echo "Ngrok tunnel URL:"
-          cat ngrok.log | grep "Forwarding"
-          echo "::set-output name=ngrok-url::$(cat ngrok.log | grep "Forwarding" | awk '{ print $NF }')"
-
-      - name: Save Ngrok URL as environment variable
-        id: ngrok
-        run: echo "::set-env name=NGROK_URL::$(cat ngrok.log | grep 'Forwarding' | awk '{ print $NF }')"
-      
-      - name: Deploy to Minikube with Ngrok URL
-        run: |
-          sed -i "s|NGROK_URL|${{ env.NGROK_URL }}|g" kubernetes/ingress.yaml
-          kubectl apply -f kubernetes/ingress.yaml
+         minikube start
+         kubectl apply -f deployment.yaml
 
