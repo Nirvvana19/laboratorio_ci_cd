@@ -1,0 +1,24 @@
+name: Build and Deploy to Minikube
+
+on:
+  push:
+    branches:
+      - main  # Cambia 'main' por la rama en la que quieres que se active esta acción
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # Ejecutar el archivo de construcción de Docker
+      - name: Build and Push Docker Image
+        uses: ./.github/workflows/build.yml
+
+
+      # Ejecutar el archivo de despliegue a Minikube con Ngrok
+      - name: Deploy to Minikube with Ngrok
+        uses: ./.github/workflows/deploy.yml
+ 
