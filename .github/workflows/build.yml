@@ -43,10 +43,6 @@ jobs:
       - name: Push Docker image to ECR
         run: docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Fetch latest Docker image from ECR
-        run: |
-          docker pull ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com/${{ env.ECR_REPOSITORY }}:${{ env.IMAGE_TAG }}
-
       - name: Start Minikube
         id: minikube
         uses: medyagh/setup-minikube@latest
@@ -56,6 +52,10 @@ jobs:
 
       - name: Copy Minikube certificates and configure kubeconfig
         run: |
+          mkdir -p ~/.kube
+          sudo cp /root/.minikube/profiles/minikube/client.crt ~/.kube/client.crt || sudo cp ~/.minikube/profiles/minikube/client.crt ~/.kube/client.crt
+          sudo cp /root/.minikube/profiles/minikube/client.key ~/.kube/client.key || sudo cp ~/.minikube/profiles/minikube/client.key ~/.kube/client.key
+          sudo cp /root/.minikube/ca.crt ~/.kube/ca.crt || sudo cp ~/.minikube/ca.crt ~/.kube/ca.crt
           sudo chmod 644 ~/.kube/client.crt
           sudo chmod 644 ~/.kube/client.key
           sudo chmod 644 ~/.kube/ca.crt
@@ -85,6 +85,7 @@ jobs:
         run: |
           kubectl config use-context minikube
           kubectl cluster-info
+          kubectl create namespace lab-mafe-ci-cd || true
           kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/ingress.yaml
