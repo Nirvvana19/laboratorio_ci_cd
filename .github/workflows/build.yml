@@ -49,7 +49,7 @@ jobs:
 
       - name: Deploy to Minikube via Ngrok
         run: |
-          kubectl apply -f kubernetes/deployment.yaml
+          kubectl apply -f deployment.yaml -n lab-mafe-ci-cd
           kubectl apply -f kubernetes/service.yaml
           kubectl apply -f kubernetes/ingress.yaml
           ngrok start --all --config=kubernetes/ngrok.yml --region=us --authtoken=${{ secrets.NGROK_AUTH_TOKEN }} --log=stdout > ngrok.log &
