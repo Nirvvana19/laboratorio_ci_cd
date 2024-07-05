@@ -56,10 +56,6 @@ jobs:
 
       - name: Copy Minikube certificates and configure kubeconfig
         run: |
-          mkdir -p ~/.kube
-          sudo cp /root/.minikube/profiles/minikube/client.crt ~/.kube/client.crt
-          sudo cp /root/.minikube/profiles/minikube/client.key ~/.kube/client.key
-          sudo cp /root/.minikube/ca.crt ~/.kube/ca.crt
           sudo chmod 644 ~/.kube/client.crt
           sudo chmod 644 ~/.kube/client.key
           sudo chmod 644 ~/.kube/ca.crt
